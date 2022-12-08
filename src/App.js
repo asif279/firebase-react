@@ -66,8 +66,21 @@ photo:''
      {
      user.signedIn && <p>Welcome , {user.name}</p>
      }
+
+<br/>
+<br/>
+    <form action="">
+    <input type="text" name="" id="" required/>
+     <br/><br/>
+     <input type="password" name="" id="" required /><br/>
+     <input type="submit" value="submit" />
+     
+     
+    </form>
     </div>
+   
   );
+  
 }
 
 export default App;
