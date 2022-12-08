@@ -64,7 +64,11 @@ photo:''
       user.signedIn?<button onClick={handleSignOut}>Signed Out</button>:<button onClick={handleClick}>Signed In</button>
      }
      {
-     user.signedIn && <p>Welcome , {user.name}</p>
+     user.signedIn && <p>Welcome , {user.name}
+     ,{user.email},
+     {user.photo}
+     
+     </p>
      }
 
 <br/>
