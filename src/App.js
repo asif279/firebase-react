@@ -10,11 +10,14 @@ import firebaseConfig from './firebase.config';
 firebase.initializeApp(firebaseConfig);
 
 function App() {
+  const [newUser,setnewUser]=useState(false)
   const [user,setUser]= useState({
   signedIn:false,
   name:'',
   email:'',
-  photo:''
+  photo:'',
+  password:'',
+ 
 
   });
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -37,6 +40,7 @@ function App() {
       var errorMessage = error.message;
       var email = error.email;
       var credential = error.credential;
+      console.log(errorCode,errorMessage,email,credential)
    
     });
     } 
@@ -48,7 +52,9 @@ function App() {
         signedIn:false,
 name:'',
 email:'',
-photo:''
+photo:'',
+error:'',
+success:false
 
       }
       setUser(signedOutuser);
@@ -56,31 +62,76 @@ photo:''
       // An error happened.
     }); 
       // ...
-    
+   
+    }
+    const handleBlur=(e)=>{
+      let formValid =true;
+       
+      if(e.target.name==='email'){
+         const  isValid= /\S+@\S+\.\S+/.test(e.target.value);
+         console.log(isValid);
+
+      } 
+       if(e.target.name==='password'){
+ const isVpassword = e.target.value.length>8;
+ const isD= /\d{1}/.test(e.target.value);
+ formValid =isVpassword && isD;
+
+      }
+      if(formValid){
+        const userInfo ={...user};
+        userInfo[e.target.name]=e.target.value;
+        setUser(userInfo);
+      }
+
+  }
+  const handleSubmit=(e)=>{
+    if(user.email && user.password){
+      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+      .then(res=>{
+   const newUserInfo={...user}
+   newUserInfo.success=true;
+   newUserInfo.error='';
+   setUser(newUserInfo);
+      })
+      
+      .catch(error=> {
+        const newUserInfo={...user};
+      newUserInfo.error=error.message;
+      newUserInfo.success=false;
+      setUser(newUserInfo);
+      });
+    }
+    e.preventDefault();
   }
   return (
-    <div className="">
+    <div className="App">
      {
       user.signedIn?<button onClick={handleSignOut}>Signed Out</button>:<button onClick={handleClick}>Signed In</button>
      }
      {
      user.signedIn && <p>Welcome , {user.name}
-     ,{user.email},
-     {user.photo}
+     ,{user.email}
      
      </p>
      }
 
 <br/>
 <br/>
+<input type="checkbox" onChange={()=>setnewUser(!newUser)} name="newUser" id="" />
+<label htmlFor="newUser">User Registration</label>
     <form action="">
-    <input type="text" name="" id="" required/>
+    {newUser && <input type="text" onBlur={handleBlur} name="email" id="" placeholder='Enter Your Email' required/>}
      <br/><br/>
-     <input type="password" name="" id="" required /><br/>
-     <input type="submit" value="submit" />
+     <input type="password" onBlur={handleBlur} name="password" id="" placeholder='Enter Your Password' required /><br/>
+     <input type="submit" onClick={handleSubmit} value="submit" />
      
      
     </form>
+    <p className='yy'>{user.error}</p>
+    {
+      user.success && <p className='bb'>User created Succesfully{user.error}</p>
+    }
     </div>
    
   );
