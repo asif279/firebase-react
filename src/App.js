@@ -86,13 +86,14 @@ success:false
 
   }
   const handleSubmit=(e)=>{
-    if(user.email && user.password){
+    if(newUser && user.email && user.password){
       firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
       .then(res=>{
    const newUserInfo={...user}
    newUserInfo.success=true;
    newUserInfo.error='';
    setUser(newUserInfo);
+   updateUser(user.name)
       })
       
       .catch(error=> {
@@ -102,7 +103,39 @@ success:false
       setUser(newUserInfo);
       });
     }
+    if(!newUser && user.email && user.password){
+      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+      .then(res=>{
+        
+        const newUserInfo={...user}
+        newUserInfo.success=true;
+        newUserInfo.error='';
+        setUser(newUserInfo);
+        console.log("sign in user info",res.user);
+           })
+           
+           .catch(error=> {
+             const newUserInfo={...user};
+           newUserInfo.error=error.message;
+           newUserInfo.success=false;
+           setUser(newUserInfo);
+           });
+    }
+
     e.preventDefault();
+  }
+  const updateUser =name=>{
+    const user = firebase.auth().currentUser;
+
+  user.updateProfile({
+    displayName: name
+   
+  }).then(() => {
+   console.log("User name Updated")
+  }).catch((error) => {
+    console.log(error,"Error Happened")
+    // ...
+  });  
   }
   return (
     <div className="App">
@@ -121,16 +154,18 @@ success:false
 <input type="checkbox" onChange={()=>setnewUser(!newUser)} name="newUser" id="" />
 <label htmlFor="newUser">User Registration</label>
     <form action="">
-    {newUser && <input type="text" onBlur={handleBlur} name="email" id="" placeholder='Enter Your Email' required/>}
+    {newUser &&  <input type="text" onBlur={handleBlur} name="name" id="" placeholder='Enter Your Name' required/>}
+    <br></br>
+    <input type="text" onBlur={handleBlur} name="email" id="" placeholder='Enter Your Email' required/>
      <br/><br/>
      <input type="password" onBlur={handleBlur} name="password" id="" placeholder='Enter Your Password' required /><br/>
-     <input type="submit" onClick={handleSubmit} value="submit" />
+     <input type="submit" onClick={handleSubmit} value={newUser?"Sign Up":"Sign In"} />
      
      
     </form>
     <p className='yy'>{user.error}</p>
     {
-      user.success && <p className='bb'>User created Succesfully{user.error}</p>
+      user.success && <p className='bb'>User{newUser? 'created':'logged in'}  Succesfully{user.error}</p>
     }
     </div>
    
